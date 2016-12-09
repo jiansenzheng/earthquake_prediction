@@ -23,8 +23,9 @@ from pandas.tools.plotting import scatter_matrix
 from matplotlib import cm
 import urllib, json
 from mpl_toolkits.mplot3d import Axes3D
+from hmm_series import model
 
-class Earth(object):
+class Earth(model):
 	def __init__(self,query):
 		self.query = query
 	def get_earth(self):
@@ -107,3 +108,32 @@ class Earth(object):
 		ax.set_xlabel(f1)
 		ax.set_ylabel(f2)
 		ax.set_zlabel(f3)
+
+	def plot_t_feature(self,key):
+		data = self.extract_earth()
+		time = data['time'].as_matrix()
+		mag = data[key].as_matrix()
+		fig = plt.figure(figsize=(12,8))
+		plt.plot_date(time,mag,'o-')
+		plt.title('Date Plot of Global Earthquakes')
+
+	def hist_earth(self, key):
+	    data = self.extract_earth()
+	    plt.hist(data[key])
+	    plt.title(key)
+	    plt.show()
+
+	def hist2d_earth(self,key1,key2):
+	    data = self.extract_earth()
+	    fig=plt.figure(figsize=(12,8))
+	    h, x, y, p = plt.hist2d(data[key1], data[key2], bins = 20)
+	    plt.title('2D Histogram for '+key1+' and '+key2)
+	    plt.imshow(h, origin = "lower",aspect='auto', interpolation = "gaussian")
+	    plt.colorbar()
+	    plt.show()
+
+	def hmm_earth(self,key,component, iteration):
+	    data = self.extract_earth()
+	    print 'fit HMM model for '+key
+	    hmm_earth= model(data[key].as_matrix())
+	    hmm_earth.plot_hmm(component, iteration)
