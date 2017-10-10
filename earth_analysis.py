@@ -17,13 +17,15 @@ import matplotlib.pyplot as plt
 
 from pykalman import KalmanFilter
 import seaborn as sns
-from pandas.io.data import DataReader
 
 from pandas.tools.plotting import scatter_matrix
 from matplotlib import cm
 import urllib, json
 from mpl_toolkits.mplot3d import Axes3D
 from hmm_series import model
+
+import plotly
+import plotly.graph_objs as go
 
 class Earth(model):
 	def __init__(self,query):
@@ -103,11 +105,59 @@ class Earth(model):
 		x = df01[f1].as_matrix()
 		y = df01[f2].as_matrix()
 		z = df01[f3].as_matrix()
-		#Axes3D.scatter(x, y, z, zdir='z', s=20, c=None, depthshade=True)
-		ax.scatter(x, y, z, zdir='z',s=20, c=None, depthshade=True)
+		ax.scatter(x, y, z, zdir='z',s=20, c='b', depthshade=True)
 		ax.set_xlabel(f1)
 		ax.set_ylabel(f2)
 		ax.set_zlabel(f3)
+
+	def scatter_3d_ply(self,x,y,z,x_label,y_label,z_label):
+		'''
+		Scattering plot with plotly
+		'''
+		trace1 = go.Scatter3d(
+			x=x,
+			y=y,
+			z=z,
+			mode='markers',
+			marker=dict(
+				size=12,
+				color=z,                # set color to an array/list of desired values
+				colorscale='Viridis',   # choose a colorscale
+				opacity=0.8
+			)
+		)
+
+		data = [trace1]
+		layout = go.Layout(
+			scene = dict(
+			xaxis = dict(
+				title=x_label),
+			yaxis = dict(
+				title=y_label),
+			zaxis = dict(
+				title=z_label),),        
+			margin=dict(
+				l=0,
+				r=0,
+				b=0,
+				t=0
+			)
+		) 
+
+		plotly.offline.plot({
+			"data": data,
+			"layout": layout
+		})
+
+	def scatter_3d_feature_ply(self,f1,f2,f3):
+		'''
+		Default: 'longit','latit','mag'
+		'''
+		df01 = self.extract_earth()
+		x = df01[f1].as_matrix()
+		y = df01[f2].as_matrix()
+		z = df01[f3].as_matrix()
+		self.scatter_3d_ply(x,y,z,f1,f2,f3)	    
 
 	def plot_t_feature(self,key):
 		data = self.extract_earth()
@@ -118,22 +168,22 @@ class Earth(model):
 		plt.title('Date Plot of Global Earthquakes')
 
 	def hist_earth(self, key):
-	    data = self.extract_earth()
-	    plt.hist(data[key])
-	    plt.title(key)
-	    plt.show()
+		data = self.extract_earth()
+		plt.hist(data[key])
+		plt.title(key)
+		plt.show()
 
 	def hist2d_earth(self,key1,key2):
-	    data = self.extract_earth()
-	    fig=plt.figure(figsize=(12,8))
-	    h, x, y, p = plt.hist2d(data[key1], data[key2], bins = 20)
-	    plt.title('2D Histogram for '+key1+' and '+key2)
-	    plt.imshow(h, origin = "lower",aspect='auto', interpolation = "gaussian")
-	    plt.colorbar()
-	    plt.show()
+		data = self.extract_earth()
+		fig=plt.figure(figsize=(12,8))
+		h, x, y, p = plt.hist2d(data[key1], data[key2], bins = 20)
+		plt.title('2D Histogram for '+key1+' and '+key2)
+		plt.imshow(h, origin = "lower",aspect='auto', interpolation = "gaussian")
+		plt.colorbar()
+		plt.show()
 
 	def hmm_earth(self,key,component, iteration):
-	    data = self.extract_earth()
-	    print 'fit HMM model for '+key
-	    hmm_earth= model(data[key].as_matrix())
-	    hmm_earth.plot_hmm(component, iteration)
+		data = self.extract_earth()
+		print 'fit HMM model for '+key
+		hmm_earth= model(data[key].as_matrix())
+		hmm_earth.plot_hmm(component, iteration)
