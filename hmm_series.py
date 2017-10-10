@@ -63,8 +63,8 @@ class model(object):
 			ax.plot(np.arange(0,length,1)[mask], self.lis[mask], ".-", c=colour)
 			ax.set_title("{0}th hidden state".format(i))
 			# Format the ticks.
-			ax.xaxis.set_major_locator(YearLocator())
-			ax.xaxis.set_minor_locator(MonthLocator())
+			#ax.xaxis.set_major_locator(YearLocator()) #(this two lines don't work. Oct 2017)
+			#ax.xaxis.set_minor_locator(MonthLocator())
 			ax.grid(True)
 		plt.show()
 
